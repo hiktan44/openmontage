@@ -12,3 +12,6 @@ google-auth>=2.0       # service-account auth for Google TTS + Imagen (Vertex AI
 fastapi>=0.110
 uvicorn>=0.29
 watchfiles>=0.21
+
+# Optional per-provider feature deps (OpenAI, yt-dlp, scenedetect, whisper, …)
+# live in requirements-optional.txt; GPU model deps in requirements-gpu.txt.

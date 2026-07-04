@@ -604,7 +604,11 @@ class VideoCompose(BaseTool):
             if subtitle_path and Path(subtitle_path).exists():
                 style = inputs.get("subtitle_style", {})
                 ass_style = self._build_subtitle_style(style)
-                sub_escaped = str(Path(subtitle_path).resolve()).replace("\\", "/").replace(":", "\\:")
+                # Security: escape path for FFmpeg filter safety
+                from lib.security import sanitize_filter_value
+                sub_escaped = sanitize_filter_value(
+                    str(Path(subtitle_path).resolve()).replace("\\", "/").replace(":", "\\:")
+                )
                 vfilters.append(f"subtitles='{sub_escaped}':force_style='{ass_style}'")
 
             cmd = ["ffmpeg", "-y", "-i", str(final_input)]
@@ -2402,7 +2406,11 @@ class VideoCompose(BaseTool):
 
         style = inputs.get("subtitle_style", {})
         ass_style = self._build_subtitle_style(style)
-        sub_escaped = str(subtitle_path.resolve()).replace("\\", "/").replace(":", "\\:")
+        # Security: escape path for FFmpeg filter safety
+        from lib.security import sanitize_filter_value
+        sub_escaped = sanitize_filter_value(
+            str(subtitle_path.resolve()).replace("\\", "/").replace(":", "\\:")
+        )
         codec = inputs.get("codec", "libx264")
         crf = inputs.get("crf", 23)
 
@@ -2594,6 +2602,10 @@ class VideoCompose(BaseTool):
     @staticmethod
     def _build_subtitle_style(style: dict) -> str:
         """Build ASS force_style string from style dict."""
+        # Security: validate style values to prevent FFmpeg filter injection
+        from lib.security import validate_subtitle_style
+        style = validate_subtitle_style(style)
+
         parts = []
         parts.append(f"FontName={style.get('font', 'Inter')}")
         parts.append(f"FontSize={style.get('font_size', 28)}")

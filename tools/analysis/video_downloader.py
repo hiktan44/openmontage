@@ -152,6 +152,12 @@ class VideoDownloader(BaseTool):
 
     def _extract_metadata(self, url: str) -> dict:
         """Extract metadata without downloading."""
+        # SSRF defense: validate URL before passing to yt-dlp
+        from lib.security import validate_download_url
+        is_valid, reason = validate_download_url(url)
+        if not is_valid:
+            return {"error": f"URL reddedildi (güvenlik): {reason}", "title": "", "duration": 0}
+
         import yt_dlp
 
         ydl_opts = {
@@ -259,6 +265,12 @@ class VideoDownloader(BaseTool):
         self, url: str, output_dir: Path, max_res: str
     ) -> tuple[str | None, str | None]:
         """Download video + extract audio track."""
+        # SSRF defense: validate URL before passing to yt-dlp
+        from lib.security import validate_download_url
+        is_valid, reason = validate_download_url(url)
+        if not is_valid:
+            return None, None
+
         import yt_dlp
 
         height = self._RES_MAP.get(max_res, 720)

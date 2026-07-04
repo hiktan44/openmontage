@@ -1,0 +1,20 @@
+# OpenMontage - Optional / Feature Dependencies
+#
+# These packages are imported lazily (inside a tool's execute() path), so the
+# tool registry loads without them, but the specific tool FAILS AT RUNTIME with
+# ModuleNotFoundError if invoked while the package is missing. They are kept out
+# of the lean core requirements.txt on purpose. Install the ones you need, or
+# `pip install -r requirements-optional.txt` to enable every provider below.
+#
+# See requirements-gpu.txt for local GPU model dependencies (diffusers, etc.).
+
+openai>=1.0                 # openai_tts, openai_image, image_gen (OpenAI TTS + GPT Image)
+beautifulsoup4>=4.12        # tools/video/stock_sources/* (HTML scraping)
+opencv-python-headless>=4.8 # cv2 — frame/scene processing across video + analysis tools
+yt-dlp>=2023.10             # tools/analysis/video_downloader (URL video download)
+scenedetect>=0.6            # tools/analysis/scene_detect (shot boundary detection)
+scipy>=1.11                 # tools/analysis/video_understand (signal processing)
+playwright>=1.40            # character_animation preview + browser capture (needs `playwright install`)
+pygments>=2.16              # tools/graphics/code_snippet (syntax highlighting)
+faster-whisper>=1.0         # tools/analysis/transcriber (local ASR)
+youtube-transcript-api>=0.6 # tools/analysis/transcript_fetcher (YouTube captions)

@@ -281,10 +281,12 @@ def create_app() -> FastAPI:
 
 
 def _safe_project_dir(project_id: str) -> Path:
-    # ':' rejects Windows drive-relative ids like "C:" (PROJECTS_DIR / "C:"
-    # collapses back to PROJECTS_DIR itself).
-    if any(c in project_id for c in "/\\:") or project_id in (".", ".."):
-        raise HTTPException(status_code=400, detail="invalid project id")
+    # Strict allowlist: only alphanumeric, underscore, hyphen.
+    # This is tighter than the old "/" "\" ":" "." ".." blocklist and
+    # prevents any path-traversal or encoding tricks.
+    import re
+    if not re.match(r"^[A-Za-z0-9_-]+$", project_id):
+        raise HTTPException(status_code=400, detail="invalid project id — only [A-Za-z0-9_-] allowed")
     project_dir = PROJECTS_DIR / project_id
     if not project_dir.is_dir():
         raise HTTPException(status_code=404, detail=f"unknown project: {project_id}")
