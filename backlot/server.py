@@ -274,6 +274,24 @@ def create_app() -> FastAPI:
     async def library_page() -> FileResponse:
         return FileResponse(UI_DIR / "index.html")
 
+    # ---- PWA: manifest, service worker ve ikonlar ---------------------
+    from fastapi.responses import FileResponse as _FR
+    import mimetypes as _mt
+    _mt.add_type("application/manifest+json", ".webmanifest")
+
+    @app.get("/manifest.webmanifest")
+    async def pwa_manifest() -> FileResponse:
+        return _FR(UI_DIR / "pwa" / "manifest.webmanifest",
+                   media_type="application/manifest+json")
+
+    @app.get("/sw.js")
+    async def pwa_sw() -> FileResponse:
+        return _FR(UI_DIR / "pwa" / "sw.js", media_type="text/javascript")
+
+    @app.get("/icons/{name}")
+    async def pwa_icon(name: str) -> FileResponse:
+        return _FR(UI_DIR / "pwa" / "icons" / name, media_type="image/png")
+
     if UI_DIR.is_dir():
         app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
 
